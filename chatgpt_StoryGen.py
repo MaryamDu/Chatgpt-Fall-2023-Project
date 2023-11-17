@@ -25,25 +25,27 @@ while i != count:
 
 for pos, lineNum in enumerate(content):
     if pos in lines:
-        prompt = "Continue the chapter based off the previous one and the next step defined by the following: " + lineNum
+        prompt = "Continue the chapter based off the previous one where " + lineNum
         #print(prompt) 
 
 file.close()
 
-postprompt = "Write a chapter based story from the first chapter to chapter number " + str(count) + "based on the following steps where each line is a new chapter: " #+ prompt
+#count *= 2
+
+postprompt = "Write a full length chapter based story, including dialogue and natural progression, starting from the first chapter to chapter number " + str(count) + "based on the following steps where each line is a new chapter: " #+ prompt
 
 
 completion = openai.ChatCompletion.create(
   model = "gpt-3.5-turbo",
-  temperature = 0.8, #degree of randomness between 0 and 2
-  max_tokens = 2000,
+  temperature = 0.2, #degree of randomness between 0 and 2
+  max_tokens = 3000,
   messages = 
-    [{"role": "system", "content": "You are a story teller."}] 
+    [{"role": "system", "content": "You are a romance and adventure story teller."}] 
     + [{"role": "user", "content" : postprompt}]
     + [{"role": "user", "content": line} for line in prompt]
     + [{"role": "assistant", "content": "Rory confesses exuberantly, \"I want to spend the rest of my life with you!\""}]
-    + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the first word is the action, the second the character performing the action, the third the character receiving the action, and the fourth is the current location."}]
-    + [{"role": "assistant", "content": "In a statement like (travel rory village cave), the first word is the action, the second the character performing the action, the third is the origin point, and the fourth is the destination."}]
+    + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
+    + [{"role": "assistant", "content": "In a statement like (travel rory village cave), the meaning is: 'Rory travels from the village to the cave' ."}]
     )
 
 output = open("story.txt", "w")
