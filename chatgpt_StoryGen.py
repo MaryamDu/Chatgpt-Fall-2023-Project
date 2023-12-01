@@ -1,8 +1,10 @@
 import openai
 import json
+from fpdf import FPDF
 
 
-file = open("fantasy-solution.pddl")
+
+file = open("western-solution.pddl")
 
 content = file.readlines()
 # countFile = content.split("\n")
@@ -50,7 +52,7 @@ for i in range(0, count):
     max_tokens = 3000,
     messages = 
         [{"role": "system", "content": "You are rephrasing a string of words."}] 
-        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent sentence: " + prompt[i])}]
+        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent sentence: " + prompt[i] + " Provide only the resulting sentence.")}]
         + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
     )
     assistantPhrases.append(str(completion["choices"][0].message["content"]))
@@ -70,7 +72,7 @@ completion = openai.ChatCompletion.create(
 story = str(completion["choices"][0].message["content"])
 previousChapter = str(completion["choices"][0].message["content"])
 
-postprompt = "Take the following chapter and make the next chapter:\n" 
+postprompt = "Take the following chapter and make the next chapter, and include dialogue and natural progression:\n" 
 
 #Chapters 2 - (End - 1)
 for i in range(1, count):
@@ -87,7 +89,7 @@ for i in range(1, count):
     previousChapter = str(completion["choices"][0].message["content"])
     story += "\n Part: " + str(i) + "\n" + str(completion["choices"][0].message["content"])
 
-postprompt = "Finish the story off based off of the following previous chapter:\n"
+postprompt = "Finish the story off based off of the following previous chapter and include dialogue if necessary to lead to a smooth ending:\n"
 
 #Final Chapter
 completion = openai.ChatCompletion.create(
@@ -102,7 +104,7 @@ completion = openai.ChatCompletion.create(
 )
 
 previousChapter = str(completion["choices"][0].message["content"])
-story += "\n Part: " + str(i) + "\n" + str(completion["choices"][0].message["content"])
+story += "\n\n" + str(completion["choices"][0].message["content"])
 
 
 
@@ -111,6 +113,17 @@ output = open("story.txt", "w")
 stroutput = story
 output.write(stroutput)
 output.close()
+
+pdf = FPDF()
+
+pdf.add_page()
+pdf.set_font("Arial", size = 15)
+f = open("story.txt", "r")
+for x in f:
+    pdf.cell(200, 10, txt = x, ln = 1, align = 'C')
+pdf.output("story.pdf")   
+
+
 
 print(str(assistantPhrases) + "\n")
 print(story)
