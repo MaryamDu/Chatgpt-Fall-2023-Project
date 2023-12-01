@@ -7,7 +7,7 @@ file = open("fantasy-solution.pddl")
 content = file.readlines()
 # countFile = content.split("\n")
 
-prompt = ""
+prompt = []
 
 count = 0
 
@@ -26,7 +26,7 @@ while i != count:
 
 for pos, lineNum in enumerate(content):
     if pos in lines:
-        prompt = "Continue the chapter based off the previous one where " + lineNum
+        prompt.append(lineNum)
         #print(prompt) 
 
 file.close()
@@ -38,7 +38,25 @@ postprompt = "Write the first chapter of a story, including dialogue and natural
 story = ""
 previousChapter = ""
 
+assistantPhrases = []
 
+count = len(prompt)
+
+#Make the assistant
+for i in range(0, count):
+    completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.1, #degree of randomness between 0 and 2
+    max_tokens = 3000,
+    messages = 
+        [{"role": "system", "content": "You are rephrasing a string of words."}] 
+        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent sentence: " + prompt[i])}]
+        + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
+    )
+    assistantPhrases.append(str(completion["choices"][0].message["content"]))
+
+
+#First Chapter
 completion = openai.ChatCompletion.create(
   model = "gpt-3.5-turbo",
   temperature = 0.2, #degree of randomness between 0 and 2
@@ -46,8 +64,7 @@ completion = openai.ChatCompletion.create(
   messages = 
     [{"role": "system", "content": "You are a story teller beginning a story."}] 
     + [{"role": "user", "content" : (postprompt + prompt[0])}]
-    + [{"role": "assistant", "content": "Rory confesses exuberantly, \"I want to spend the rest of my life with you!\""}]
-    + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
+    + [{"role": "assistant", "content": assistantPhrases[0]}]
 )
 
 story = str(completion["choices"][0].message["content"])
@@ -55,6 +72,7 @@ previousChapter = str(completion["choices"][0].message["content"])
 
 postprompt = "Take the following chapter and make the next chapter:\n" 
 
+#Chapters 2 - (End - 1)
 for i in range(1, count):
     completion = openai.ChatCompletion.create(
     model = "gpt-3.5-turbo",
@@ -64,15 +82,14 @@ for i in range(1, count):
         [{"role": "system", "content": "You are a story teller continuing a story."}] 
         + [{"role": "user", "content" : (postprompt + previousChapter + " \nUtilize the following steps as a basis as well: " + prompt[i])}]
         + [{"role": "assistant", "content": "The current chapter is " + str(i)}] 
-        + [{"role": "assistant", "content": "Rory travels to a perilous cave to prove his love!"}]
-        + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
-        + [{"role": "assistant", "content": "In a statement like (travel rory village cave), the meaning is: 'Rory travels from the village to the cave' ."}]
+        + [{"role": "assistant", "content": assistantPhrases[i]}]
     )
     previousChapter = str(completion["choices"][0].message["content"])
     story += "\n Part: " + str(i) + "\n" + str(completion["choices"][0].message["content"])
 
 postprompt = "Finish the story off based off of the following previous chapter:\n"
 
+#Final Chapter
 completion = openai.ChatCompletion.create(
   model = "gpt-3.5-turbo",
   temperature = 0.2, #degree of randomness between 0 and 2
@@ -81,8 +98,7 @@ completion = openai.ChatCompletion.create(
     [{"role": "system", "content": "You are a story teller ending a story."}] 
     + [{"role": "user", "content" : (postprompt + previousChapter + " \nUtilize the following steps as a basis as well: " + prompt[count-1])}]
     + [{"role": "assistant", "content": "The final chapter is " + str(count)}] 
-    + [{"role": "assistant", "content": "After his ardurous journey, Rory returns home and marries Talia."}]
-    + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
+    + [{"role": "assistant", "content": assistantPhrases[count-1]}]
 )
 
 previousChapter = str(completion["choices"][0].message["content"])
@@ -96,6 +112,7 @@ stroutput = story
 output.write(stroutput)
 output.close()
 
-print(completion["choices"][0].message["content"])
+print(str(assistantPhrases) + "\n")
+print(story)
 # print(completion["choices"][0].message["content"], file=output)
 # print(completion.choices[0].message)
