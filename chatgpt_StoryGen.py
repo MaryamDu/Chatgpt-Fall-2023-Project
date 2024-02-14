@@ -3,13 +3,15 @@ import json
 from fpdf import FPDF
 
 
+openai.api_key = "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"
 
-file = open("western-solution.pddl")
+file = open("Steps.txt")
 
 content = file.readlines()
 # countFile = content.split("\n")
 
 prompt = []
+setup = []
 
 count = 0
 
@@ -19,6 +21,7 @@ for i in content:
         count += 1
 
 lines = []
+setup_lines = []
 
 # make an array for 2 - .length-1
 i = 2
@@ -26,23 +29,35 @@ while i != count:
     lines.append(i)
     i += 1
 
+i = 0
+while i <= 2:
+    setup_lines.append(i)
+    i+=1 
+
 for pos, lineNum in enumerate(content):
     if pos in lines:
         prompt.append(lineNum)
         #print(prompt) 
 
-file.close()
+for pos, lineNum in enumerate(content):
+    if pos in setup_lines:
+        setup.append(lineNum)
+        #print(setup) 
 
-#count *= 2
+file.close()
 
 postprompt = "Write the first chapter of a story, including dialogue and natural progression, based on the following: " 
 
 story = ""
 previousChapter = ""
+chapters = []
 
 assistantPhrases = []
 
 count = len(prompt)
+
+#Set up the scene
+
 
 #Make the assistant
 for i in range(0, count):
@@ -67,10 +82,12 @@ completion = openai.ChatCompletion.create(
     [{"role": "system", "content": "You are a story teller beginning a story."}] 
     + [{"role": "user", "content" : (postprompt + prompt[0])}]
     + [{"role": "assistant", "content": assistantPhrases[0]}]
+    + [{"role": "assistant", "content": "The genre is " + setup[0] + ". The setting begins in " + setup[1] + ". The problem is " + setup[2]}]
 )
 
 story = str(completion["choices"][0].message["content"])
 previousChapter = str(completion["choices"][0].message["content"])
+chapters.append(previousChapter)
 
 postprompt = "Take the following chapter and make the next chapter, and include dialogue and natural progression:\n" 
 
@@ -79,15 +96,17 @@ for i in range(1, count):
     completion = openai.ChatCompletion.create(
     model = "gpt-3.5-turbo",
     temperature = 0.2, #degree of randomness between 0 and 2
-    max_tokens = 2700,
+    max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller continuing a story."}] 
         + [{"role": "user", "content" : (postprompt + previousChapter + " \nUtilize the following steps as a basis as well: " + prompt[i])}]
         + [{"role": "assistant", "content": "The current chapter is " + str(i)}] 
         + [{"role": "assistant", "content": assistantPhrases[i]}]
+        + [{"role": "assistant", "content": "The genre is " + setup[0]}]
     )
     previousChapter = str(completion["choices"][0].message["content"])
     story += "\n Part: " + str(i) + "\n" + str(completion["choices"][0].message["content"])
+    chapters.append(previousChapter)
 
 postprompt = "Finish the story off based off of the following previous chapter and include dialogue if necessary to lead to a smooth ending:\n"
 
@@ -101,31 +120,48 @@ completion = openai.ChatCompletion.create(
     + [{"role": "user", "content" : (postprompt + previousChapter + " \nUtilize the following steps as a basis as well: " + prompt[count-1])}]
     + [{"role": "assistant", "content": "The final chapter is " + str(count)}] 
     + [{"role": "assistant", "content": assistantPhrases[count-1]}]
+    + [{"role": "assistant", "content": "The genre is " + setup[0]}]
 )
 
 previousChapter = str(completion["choices"][0].message["content"])
 story += "\n\n" + str(completion["choices"][0].message["content"])
+chapters.append(previousChapter)
 
+remadeStory = ""
+summary = []
 
+#Summarize
+for i in range(0, count):
+    completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
+        + [{"role": "user", "content" : "Summarize the following chapter: " + chapters[i]}]
+    )
+    summary.append( str(completion["choices"][0].message["content"]))
+
+#Rewrite
+for i in range(1, count):
+    completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
+        + [{"role": "user", "content" : "Rewrite the following chapter: " + chapters[i]}]
+        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
+    )
+    remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
 
 
 output = open("story.txt", "w")
-stroutput = story
+stroutput = story + "\n\nRemade Story\n\n" + remadeStory
 output.write(stroutput)
 output.close()
 
-pdf = FPDF()
 
-pdf.add_page()
-pdf.set_font("Arial", size = 15)
-f = open("story.txt", "r")
-for x in f:
-    pdf.cell(200, 10, txt = x, ln = 1, align = 'C')
-pdf.output("story.pdf")   
-
-
-
-print(str(assistantPhrases) + "\n")
-print(story)
+print(str(assistantPhrases) + "\n" + str(summary))
 # print(completion["choices"][0].message["content"], file=output)
 # print(completion.choices[0].message)
