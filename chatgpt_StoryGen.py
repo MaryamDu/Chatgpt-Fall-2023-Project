@@ -3,7 +3,6 @@ import json
 from fpdf import FPDF
 
 
-openai.api_key = "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"
 
 file = open("Steps.txt")
 
@@ -82,7 +81,7 @@ completion = openai.ChatCompletion.create(
     [{"role": "system", "content": "You are a story teller beginning a story."}] 
     + [{"role": "user", "content" : (postprompt + prompt[0])}]
     + [{"role": "assistant", "content": assistantPhrases[0]}]
-    + [{"role": "assistant", "content": "The genre is " + setup[0] + ". The setting begins in " + setup[1] + ". The problem is " + setup[2]}]
+    + [{"role": "assistant", "content": "The genre is " + setup[0]}]
 )
 
 story = str(completion["choices"][0].message["content"])
@@ -138,9 +137,12 @@ for i in range(0, count):
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : "Summarize the following chapter: " + chapters[i]}]
+        + [{"role": "user", "content" : "Create a short summary of the following chapter: " + chapters[i]}]
+        + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
     )
     summary.append( str(completion["choices"][0].message["content"]))
+
+remadeStory += chapters[0]
 
 #Rewrite
 for i in range(1, count):
