@@ -158,12 +158,56 @@ for i in range(1, count):
     remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
 
 
+#Character Identification
+characters_CH = []
+characters = ""
+
+#Chapter by Chapter
+for i in range(0, count-1):
+    completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are identifying important characters in a story."}] 
+        + [{"role": "user", "content" : "State the important characters of the following chapter and aspects about them that a reader should know: " + chapters[i]}]
+    )
+    characters_CH.append( str(completion["choices"][0].message["content"]))
+
+#Story as a whole
+completion = openai.ChatCompletion.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2, #degree of randomness between 0 and 2
+max_tokens = 2500,
+messages = 
+    [{"role": "system", "content": "You are identifying important characters in a story."}] 
+    + [{"role": "user", "content" : "State the important characters in this story and aspects about them that a reader should know: " + remadeStory}]
+)
+characters = ( str(completion["choices"][0].message["content"]))
+
+characterStory = ""
+
+#Rewrite
+for i in range(0, count-1):
+    completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
+        + [{"role": "user", "content" : "Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i]}]
+        + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the story: " + characters}]
+    )
+    characterStory += "\n\n" + str(completion["choices"][0].message["content"])
+
+
+
 output = open("story.txt", "w")
-stroutput = story + "\n\nRemade Story\n\n" + remadeStory
+stroutput = "Assitant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Charactersn\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story\n\n" + remadeStory + "\n\nRemade Story with Characters\n\n" + characterStory
 output.write(stroutput)
 output.close()
 
 
-print(str(assistantPhrases) + "\n" + str(summary))
+#print(str(assistantPhrases) + "\nSummary" + str(summary) + "\nChapter By Chapter Characters" + str(characters_CH) + "\nCharacters as a Whole" + characters)
 # print(completion["choices"][0].message["content"], file=output)
 # print(completion.choices[0].message)
