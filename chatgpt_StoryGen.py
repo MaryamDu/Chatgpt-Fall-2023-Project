@@ -185,6 +185,20 @@ messages =
 )
 characters = ( str(completion["choices"][0].message["content"]))
 
+characterRelations = ""
+
+#Story relations
+completion = openai.ChatCompletion.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2, #degree of randomness between 0 and 2
+max_tokens = 2500,
+messages = 
+    [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
+    + [{"role": "user", "content" : "State the important characters in this story and their relationship to one another: " + remadeStory}]
+)
+characterRelations = ( str(completion["choices"][0].message["content"]))
+
+
 characterStory = ""
 
 #Rewrite
@@ -197,13 +211,41 @@ for i in range(0, count-1):
         [{"role": "system", "content": "You are a story teller remaking chapters."}] 
         + [{"role": "user", "content" : "Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i]}]
         + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the story: " + characters}]
+        + [{"role": "assistant", "content": "Keep in mind that these are the relationships between the characters: " + characterRelations}]
     )
     characterStory += "\n\n" + str(completion["choices"][0].message["content"])
+
+summary2 = ""
+summary3 = ""
+
+#Summarize the other remakes
+completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are a story teller summarizing a story."}] 
+        + [{"role": "user", "content" : "Create a  summary of the following story: " + remadeStory}]
+        + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
+    )
+summary2 = ( str(completion["choices"][0].message["content"]))
+
+
+completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
+        + [{"role": "user", "content" : "Create a short summary of the following chapter: " + characterStory}]
+        + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
+)
+summary3 = ( str(completion["choices"][0].message["content"]))
 
 
 
 output = open("story.txt", "w")
-stroutput = "Assitant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Charactersn\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story\n\n" + remadeStory + "\n\nRemade Story with Characters\n\n" + characterStory
+stroutput = "Assistant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Characters\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nCharacter Relationships\n\n" + characterRelations + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story Summary\n\n" + summary2 + "\n\nRemade Story\n\n" + remadeStory + "\n\nCharacter Remade Story Summary\n\n" + summary3 +"\n\nRemade Story with Characters\n\n" + characterStory 
 output.write(stroutput)
 output.close()
 

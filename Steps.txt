@@ -1,12 +1,13 @@
-action and adventure
+romance, drama, and adventure
 
-(travel indiana usa tanis)
-          (excavate indiana ark tanis)
-          (take nazis ark indiana tanis)
-          (non-executed (travel army usa tanis))
-          (non-executed (give indiana ark army tanis))
-          (open-ark nazis)
-          (take indiana ark nazis tanis)
-          (travel indiana tanis usa)
-          (give indiana ark army usa)
-          (close-ark)))lode)))
+The King falls in love with Jasmine in the castle.
+	The King orders the hero to help him win Jasmine's love.
+	The hero goes from the castle to the mountain.
+	The hero slays the dragon at the mountain.
+	The hero pillages a lamp from the dragon.
+	The hero summons a genie from the lamp.
+	The hero commands the genie to make Jasmine love the King.
+	The genie casts a love spell on Jasmine.
+	The king marries Jasmine at the castle.
+	The genie poses a threat to the kingdom.
+	The hero slays the genie.
