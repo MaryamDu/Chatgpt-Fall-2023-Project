@@ -66,7 +66,7 @@ for i in range(0, count):
     max_tokens = 3000,
     messages = 
         [{"role": "system", "content": "You are rephrasing a string of words."}] 
-        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent sentence: " + prompt[i] + " Provide only the resulting sentence.")}]
+        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent and elaborate sentence: " + prompt[i] + " Provide only the resulting sentence.")}]
         + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
     )
     assistantPhrases.append(str(completion["choices"][0].message["content"]))
@@ -195,6 +195,7 @@ max_tokens = 2500,
 messages = 
     [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
     + [{"role": "user", "content" : "State the important characters in this story and their relationship to one another: " + remadeStory}]
+    + [{"role": "assistant", "content": "Exclude characters that aren't individuals, that is don't include groups of people or unnamed characters. "}]
 )
 characterRelations = ( str(completion["choices"][0].message["content"]))
 
@@ -225,7 +226,7 @@ completion = openai.ChatCompletion.create(
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing a story."}] 
-        + [{"role": "user", "content" : "Create a  summary of the following story: " + remadeStory}]
+        + [{"role": "user", "content" : "Create a detailed summary of the following story: " + remadeStory}]
         + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
     )
 summary2 = ( str(completion["choices"][0].message["content"]))
@@ -237,15 +238,29 @@ completion = openai.ChatCompletion.create(
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : "Create a short summary of the following chapter: " + characterStory}]
+        + [{"role": "user", "content" : "Create a detailed summary of the following chapter: " + characterStory}]
         + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
 )
 summary3 = ( str(completion["choices"][0].message["content"]))
 
+characterStoryUpdate = ""
+
+#Story relations after everything
+completion = openai.ChatCompletion.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2, #degree of randomness between 0 and 2
+max_tokens = 2500,
+messages = 
+    [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
+    + [{"role": "user", "content" : "State the important characters in this story and their relationship to one another: " + characterStory}]
+)
+characterStoryUpdate = ( str(completion["choices"][0].message["content"]))
+
+
 
 
 output = open("story.txt", "w")
-stroutput = "Assistant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Characters\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nCharacter Relationships\n\n" + characterRelations + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story Summary\n\n" + summary2 + "\n\nRemade Story\n\n" + remadeStory + "\n\nCharacter Remade Story Summary\n\n" + summary3 +"\n\nRemade Story with Characters\n\n" + characterStory 
+stroutput = "Assistant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Characters\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nCharacter Relationships\n\n" + characterRelations + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story Summary\n\n" + summary2 + "\n\nRemade Story\n\n" + remadeStory + "\n\nCharacter Remade Story Summary\n\n" + summary3 + "\n\nCharacters Rehash\n\n" + characterStoryUpdate + "\n\nRemade Story with Characters\n\n" + characterStory 
 output.write(stroutput)
 output.close()
 

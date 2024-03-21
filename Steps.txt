@@ -1,13 +1,19 @@
-romance, drama, and adventure
+action and adventure
 
-The King falls in love with Jasmine in the castle.
-	The King orders the hero to help him win Jasmine's love.
-	The hero goes from the castle to the mountain.
-	The hero slays the dragon at the mountain.
-	The hero pillages a lamp from the dragon.
-	The hero summons a genie from the lamp.
-	The hero commands the genie to make Jasmine love the King.
-	The genie casts a love spell on Jasmine.
-	The king marries Jasmine at the castle.
-	The genie poses a threat to the kingdom.
-	The hero slays the genie.
+Robbie hatches a plan to use a six shooter and a brown horse to rob the bank's motherlode.
+	Jill opens a general store.
+	Sally moves from the main street to the bank and withdraws money to buy a dress from the bank.
+	Sally sells Anne's tomatoes on the main street to get money.
+	Robbie moves from the main street to a dark alley and hides in the dark alley.
+	Barney leaves his house to go to the saloon.
+	Robbie pickpockets Sally's dress money in the dark alley.
+	Robbie goes to the sallon and escorts his drunk friend Robbie out of the saloon and to a dark alley.
+	Robbie kills Barney and steals his six shooter.
+	Robbie goes back to the saloon and cheats at poker using the dress money he stole to get poker money.
+	Robbie goes to the main street and pawns a valuable locket to gain money.
+	Robbie buys a valuable brown horse using the locket money.
+	Robbie rides the horse to the bank and pulls a six shooter on Tom.
+	Robbie collects money from the bank heist.
+	Robbie gets away with the money and leaves town.
+	Tom goes to the sheriffs office to get handcuffs then goes to the barber shop out of town.
+	Tom arrests Robbie using the handcuffs.
