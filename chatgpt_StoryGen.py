@@ -137,7 +137,7 @@ for i in range(0, count):
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : "Create a short summary of the following chapter: " + chapters[i]}]
+        + [{"role": "user", "content" : ("Create a short summary of the following chapter: " + chapters[i])}]
         + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
     )
     summary.append( str(completion["choices"][0].message["content"]))
@@ -152,7 +152,7 @@ for i in range(1, count):
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller remaking chapters."}] 
-        + [{"role": "user", "content" : "Rewrite the following chapter: " + chapters[i]}]
+        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i])}]
         + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
     )
     remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
@@ -169,8 +169,9 @@ for i in range(0, count-1):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are identifying important characters in a story."}] 
-        + [{"role": "user", "content" : "State the important characters of the following chapter and aspects about them that a reader should know: " + chapters[i]}]
+        [{"role": "system", "content": "You are identifying important characters in a story and identifying aspects that a reader should know."}] 
+        + [{"role": "user", "content" : ("State the important characters of the following chapter and aspects about them that a reader should know: " + chapters[i])}]
+        + [{"role": "assistant", "content": "Important characters are individuals with names, not groups of people."}]
     )
     characters_CH.append( str(completion["choices"][0].message["content"]))
 
@@ -180,8 +181,9 @@ model = "gpt-3.5-turbo",
 temperature = 0.2, #degree of randomness between 0 and 2
 max_tokens = 2500,
 messages = 
-    [{"role": "system", "content": "You are identifying important characters in a story."}] 
-    + [{"role": "user", "content" : "State the important characters in this story and aspects about them that a reader should know: " + remadeStory}]
+    [{"role": "system", "content": "You are identifying important characters in a story and identifying aspects that a reader should know."}] 
+    + [{"role": "user", "content" : ("State the important characters in this story and aspects about them that a reader should know: " + remadeStory)}]
+    + [{"role": "assistant", "content": "Important characters are individuals with names, not groups of people."}]
 )
 characters = ( str(completion["choices"][0].message["content"]))
 
@@ -194,7 +196,7 @@ temperature = 0.2, #degree of randomness between 0 and 2
 max_tokens = 2500,
 messages = 
     [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
-    + [{"role": "user", "content" : "State the important characters in this story and their relationship to one another: " + remadeStory}]
+    + [{"role": "user", "content" : ("State the important characters in this story and their relationship to one another: " + remadeStory)}]
     + [{"role": "assistant", "content": "Exclude characters that aren't individuals, that is don't include groups of people or unnamed characters. "}]
 )
 characterRelations = ( str(completion["choices"][0].message["content"]))
@@ -209,8 +211,8 @@ for i in range(0, count-1):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
-        + [{"role": "user", "content" : "Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i]}]
+        [{"role": "system", "content": "You are a story teller remaking chapters based on characters and their relationships to each other."}] 
+        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i])}]
         + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the story: " + characters}]
         + [{"role": "assistant", "content": "Keep in mind that these are the relationships between the characters: " + characterRelations}]
     )
@@ -226,8 +228,8 @@ completion = openai.ChatCompletion.create(
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing a story."}] 
-        + [{"role": "user", "content" : "Create a detailed summary of the following story: " + remadeStory}]
-        + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
+        + [{"role": "user", "content" : ("Create a detailed summary of the following story: " + remadeStory)}]
+        + [{"role": "assistant", "content" : "The summary should be long."}]
     )
 summary2 = ( str(completion["choices"][0].message["content"]))
 
@@ -238,8 +240,8 @@ completion = openai.ChatCompletion.create(
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : "Create a detailed summary of the following chapter: " + characterStory}]
-        + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
+        + [{"role": "user", "content" : ("Create a detailed summary of the following chapter: " + characterStory)}]
+        + [{"role": "assistant", "content" : "The summary should be long."}]
 )
 summary3 = ( str(completion["choices"][0].message["content"]))
 
@@ -252,7 +254,8 @@ temperature = 0.2, #degree of randomness between 0 and 2
 max_tokens = 2500,
 messages = 
     [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
-    + [{"role": "user", "content" : "State the important characters in this story and their relationship to one another: " + characterStory}]
+    + [{"role": "user", "content" : ("State the important characters in this story and their relationship to one another: " + characterStory)}]
+    + [{"role": "assistant", "content": "Important characters are individuals with names, not groups of people."}]
 )
 characterStoryUpdate = ( str(completion["choices"][0].message["content"]))
 
