@@ -59,18 +59,29 @@ count = len(prompt)
 
 
 #Make the assistant
+#for i in range(0, count):
+#    completion = openai.ChatCompletion.create(
+#    model = "gpt-3.5-turbo",
+#    temperature = 0.1, #degree of randomness between 0 and 2
+#    max_tokens = 3000,
+#    messages = 
+#        [{"role": "system", "content": "You are rephrasing a string of words."}] 
+#        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent and elaborate sentence: " + prompt[i] + " Provide only the resulting sentence.")}]
+#        + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
+#    )
+#    assistantPhrases.append(str(completion["choices"][0].message["content"]))
+
 for i in range(0, count):
     completion = openai.ChatCompletion.create(
     model = "gpt-3.5-turbo",
     temperature = 0.1, #degree of randomness between 0 and 2
     max_tokens = 3000,
     messages = 
-        [{"role": "system", "content": "You are rephrasing a string of words."}] 
-        + [{"role": "user", "content" : ("Take the following phrase and make it into a coherent and elaborate sentence: " + prompt[i] + " Provide only the resulting sentence.")}]
-        + [{"role": "assistant", "content": "In a statement like (accept talia rory village), the meaning is: 'Talia accepts Rory's proposal in the village' "}]
+        [{"role": "system", "content": "You are elaborating a sentence to turn it into steps in a story."}] 
+        + [{"role": "user", "content" : ("Take the following sentence and elaborate on it by making it into the steps of a story: " + prompt[i] + " Provide only the resulting sentence.")}]
+        + [{"role": "assistant", "content": "In a statement like 'The hero meets the mentor' and elaboration would be 'Angelica met the wizard Ozborn in a tavern who proposed to her a quest.' "}]
     )
     assistantPhrases.append(str(completion["choices"][0].message["content"]))
-
 
 #First Chapter
 completion = openai.ChatCompletion.create(
@@ -142,20 +153,20 @@ for i in range(0, count):
     )
     summary.append( str(completion["choices"][0].message["content"]))
 
-remadeStory += chapters[0]
+#remadeStory += chapters[0]
 
 #Rewrite
-for i in range(1, count):
-    completion = openai.ChatCompletion.create(
-    model = "gpt-3.5-turbo",
-    temperature = 0.2, #degree of randomness between 0 and 2
-    max_tokens = 2500,
-    messages = 
-        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
-        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i])}]
-        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
-    )
-    remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
+#for i in range(1, count):
+#    completion = openai.ChatCompletion.create(
+#    model = "gpt-3.5-turbo",
+#    temperature = 0.2, #degree of randomness between 0 and 2
+#    max_tokens = 2500,
+#    messages = 
+#        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
+#        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i])}]
+#        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
+#    )
+#    remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
 
 
 #Character Identification
@@ -211,10 +222,11 @@ for i in range(0, count-1):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller remaking chapters based on characters and their relationships to each other."}] 
-        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i])}]
+        [{"role": "system", "content": "You are a story teller remaking chapters based on characters, their relationships to each other, and summaries of previous chapters."}] 
+        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i] + " \nUtlize the following summary of the current chapter as well: " + chapters[i] + "\nProvide only the resulting chapter.")}]
         + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the story: " + characters}]
         + [{"role": "assistant", "content": "Keep in mind that these are the relationships between the characters: " + characterRelations}]
+        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
     )
     characterStory += "\n\n" + str(completion["choices"][0].message["content"])
 
