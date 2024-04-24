@@ -71,15 +71,32 @@ count = len(prompt)
 #    )
 #    assistantPhrases.append(str(completion["choices"][0].message["content"]))
 
+characterList = ""
+
+completion = openai.ChatCompletion.create(
+  model = "gpt-3.5-turbo",
+  temperature = 0.2, #degree of randomness between 0 and 2
+  max_tokens = 3000,
+  messages = 
+    [{"role": "system", "content": "You are making a list of characters for a story."}] 
+    + [{"role": "user", "content" : "Make a list of character names for a story, ranging from the protagonist, antagonist, mentor, and any other key chatacters."}]
+    + [{"role": "assistant", "content": "The format should be similar to the following: John - main character."}]
+    + [{"role": "assistant", "content": "The genre is " + setup[0]}]
+)
+
+characterList = str(completion["choices"][0].message["content"])
+
+
 for i in range(0, count):
     completion = openai.ChatCompletion.create(
     model = "gpt-3.5-turbo",
     temperature = 0.1, #degree of randomness between 0 and 2
     max_tokens = 3000,
     messages = 
-        [{"role": "system", "content": "You are elaborating a sentence to turn it into steps in a story."}] 
-        + [{"role": "user", "content" : ("Take the following sentence and elaborate on it by making it into the steps of a story: " + prompt[i] + " Provide only the resulting sentence.")}]
+        [{"role": "system", "content": "You are elaborating on the steps of the Hero's Journey to turn it into steps in a story."}] 
+        + [{"role": "user", "content" : ("Take the following step of the Hero's Journey and elaborate on it by making it into the steps of a story: " + prompt[i] + " Provide only the resulting sentence.")}]
         + [{"role": "assistant", "content": "In a statement like 'The hero meets the mentor' and elaboration would be 'Angelica met the wizard Ozborn in a tavern who proposed to her a quest.' "}]
+        + [{"role": "assistant", "content": "Use the following list of characters and their roles appropiately: " + characterList}]
     )
     assistantPhrases.append(str(completion["choices"][0].message["content"]))
 
@@ -153,20 +170,20 @@ for i in range(0, count):
     )
     summary.append( str(completion["choices"][0].message["content"]))
 
-#remadeStory += chapters[0]
+remadeStory += chapters[0]
 
 #Rewrite
-#for i in range(1, count):
-#    completion = openai.ChatCompletion.create(
-#    model = "gpt-3.5-turbo",
-#    temperature = 0.2, #degree of randomness between 0 and 2
-#    max_tokens = 2500,
-#    messages = 
-#        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
-#        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i])}]
-#        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
-#    )
-#    remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
+for i in range(1, count):
+    completion = openai.ChatCompletion.create(
+    model = "gpt-3.5-turbo",
+    temperature = 0.2, #degree of randomness between 0 and 2
+    max_tokens = 2500,
+    messages = 
+        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
+        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i])}]
+        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
+    )
+    remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
 
 
 #Character Identification
@@ -222,11 +239,10 @@ for i in range(0, count-1):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller remaking chapters based on characters, their relationships to each other, and summaries of previous chapters."}] 
-        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i] + " \nUtlize the following summary of the current chapter as well: " + chapters[i] + "\nProvide only the resulting chapter.")}]
+        [{"role": "system", "content": "You are a story teller remaking chapters based on characters and their relationships to each other."}] 
+        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i] + "\nProvide only the resulting chapter.")}]
         + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the story: " + characters}]
         + [{"role": "assistant", "content": "Keep in mind that these are the relationships between the characters: " + characterRelations}]
-        + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
     )
     characterStory += "\n\n" + str(completion["choices"][0].message["content"])
 
@@ -252,7 +268,7 @@ completion = openai.ChatCompletion.create(
     max_tokens = 2500,
     messages = 
         [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : ("Create a detailed summary of the following chapter: " + characterStory)}]
+        + [{"role": "user", "content" : ("Create a detailed summary of the following story: " + characterStory)}]
         + [{"role": "assistant", "content" : "The summary should be long."}]
 )
 summary3 = ( str(completion["choices"][0].message["content"]))
@@ -275,7 +291,7 @@ characterStoryUpdate = ( str(completion["choices"][0].message["content"]))
 
 
 output = open("story.txt", "w")
-stroutput = "Assistant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Characters\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nCharacter Relationships\n\n" + characterRelations + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story Summary\n\n" + summary2 + "\n\nRemade Story\n\n" + remadeStory + "\n\nCharacter Remade Story Summary\n\n" + summary3 + "\n\nCharacters Rehash\n\n" + characterStoryUpdate + "\n\nRemade Story with Characters\n\n" + characterStory 
+stroutput = "Character List\n\n" + characterList + "\n\nAssistant Phrases\n\n" + str(assistantPhrases) + "\n\nSummary\n\n" + str(summary) + "\n\nChapter By Chapter Characters\n\n" + str(characters_CH) + "\n\nCharacters as a Whole\n\n" + characters + "\n\nCharacter Relationships\n\n" + characterRelations + "\n\nFirst Draft\n\n" + story + "\n\nRemade Story Summary\n\n" + summary2 + "\n\nRemade Story\n\n" + remadeStory + "\n\nCharacter Remade Story Summary\n\n" + summary3 + "\n\nCharacters Rehash\n\n" + characterStoryUpdate + "\n\nRemade Story with Characters\n\n" + characterStory 
 output.write(stroutput)
 output.close()
 
