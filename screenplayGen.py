@@ -78,8 +78,8 @@ completion = openai.ChatCompletion.create(
   temperature = 0.2, #degree of randomness between 0 and 2
   max_tokens = 3000,
   messages = 
-    [{"role": "system", "content": "You are making a list of characters for a story."}] 
-    + [{"role": "user", "content" : "Make a list of character names for a story, ranging from the protagonist, antagonist, mentor, and any other key chatacters."}]
+    [{"role": "system", "content": "You are making a list of characters for a screenplay."}] 
+    + [{"role": "user", "content" : "Make a list of character names for a screenplay, ranging from the protagonist, antagonist, mentor, and any other key chatacters."}]
     + [{"role": "assistant", "content": "The format should be similar to the following: John - main character."}]
     + [{"role": "assistant", "content": "The genre is " + setup[0]}]
 )
@@ -93,8 +93,8 @@ for i in range(0, count):
     temperature = 0.1, #degree of randomness between 0 and 2
     max_tokens = 3000,
     messages = 
-        [{"role": "system", "content": "You are elaborating on the steps of the Hero's Journey to turn it into steps in a story."}] 
-        + [{"role": "user", "content" : ("Take the following step of the Hero's Journey and elaborate on it by making it into the brief steps of a story: " + prompt[i] + " Provide only the resulting elaboration.")}]
+        [{"role": "system", "content": "You are elaborating on the steps of the Hero's Journey to turn it into steps in a screenplay."}] 
+        + [{"role": "user", "content" : ("Take the following step of the Hero's Journey and elaborate on it by making it into the brief steps of a screenplay: " + prompt[i] + " Provide only the resulting elaboration.")}]
         + [{"role": "assistant", "content": "Use the following list of characters and their roles appropiately: " + characterList}]
     )
     assistantPhrases.append(str(completion["choices"][0].message["content"]))
@@ -105,7 +105,7 @@ completion = openai.ChatCompletion.create(
   temperature = 0.2, #degree of randomness between 0 and 2
   max_tokens = 3000,
   messages = 
-    [{"role": "system", "content": "You are a story teller beginning a story."}] 
+    [{"role": "system", "content": "You are beginning a screenplay"}] 
     + [{"role": "user", "content" : (postprompt + prompt[0])}]
     + [{"role": "assistant", "content": assistantPhrases[0]}]
     + [{"role": "assistant", "content": "The genre is " + setup[0]}]
@@ -115,7 +115,7 @@ story = str(completion["choices"][0].message["content"])
 previousChapter = str(completion["choices"][0].message["content"])
 chapters.append(previousChapter)
 
-postprompt = "Take the following chapter and make the next chapter, and include dialogue and natural progression:\n" 
+postprompt = "Take the following introduction and continue the screenplay, and include dialogue and natural progression:\n" 
 
 #Chapters 2 - (End - 1)
 for i in range(1, count):
@@ -124,9 +124,9 @@ for i in range(1, count):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller continuing a story."}] 
+        [{"role": "system", "content": "You are continuing a screenplay."}] 
         + [{"role": "user", "content" : (postprompt + previousChapter + " \nUtilize the following steps as a basis as well: " + prompt[i])}]
-        + [{"role": "assistant", "content": "The current chapter is " + str(i)}] 
+        #+ [{"role": "assistant", "content": "The current chapter is " + str(i)}] 
         + [{"role": "assistant", "content": assistantPhrases[i]}]
         + [{"role": "assistant", "content": "The genre is " + setup[0]}]
     )
@@ -134,7 +134,7 @@ for i in range(1, count):
     story += "\n" + str(completion["choices"][0].message["content"])
     chapters.append(previousChapter)
 
-postprompt = "Finish the story off based off of the following previous chapter and include dialogue if necessary to lead to a smooth ending:\n"
+postprompt = "Finish the screnplay off based off of the following previous content and include dialogue if necessary to lead to a smooth ending:\n"
 
 #Final Chapter
 completion = openai.ChatCompletion.create(
@@ -142,9 +142,9 @@ completion = openai.ChatCompletion.create(
   temperature = 0.2, #degree of randomness between 0 and 2
   max_tokens = 3000,
   messages = 
-    [{"role": "system", "content": "You are a story teller ending a story."}] 
+    [{"role": "system", "content": "You are ending a screenplay."}] 
     + [{"role": "user", "content" : (postprompt + previousChapter + " \nUtilize the following steps as a basis as well: " + prompt[count-1])}]
-    + [{"role": "assistant", "content": "The final chapter is " + str(count)}] 
+    #+ [{"role": "assistant", "content": "The final chapter is " + str(count)}] 
     + [{"role": "assistant", "content": assistantPhrases[count-1]}]
     + [{"role": "assistant", "content": "The genre is " + setup[0]}]
 )
@@ -163,8 +163,8 @@ for i in range(0, count):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : ("Create a short summary of the following chapter: " + chapters[i])}]
+        [{"role": "system", "content": "You are summarizing a screenplay."}] 
+        + [{"role": "user", "content" : ("Create a short summary of the following section of a screenplay: " + chapters[i])}]
         + [{"role": "assistant", "content" : "The summary should only be a few sentences long."}]
     )
     summary.append( str(completion["choices"][0].message["content"]))
@@ -178,8 +178,8 @@ for i in range(1, count):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller remaking chapters."}] 
-        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i])}]
+        [{"role": "system", "content": "You are remaking a screenplay."}] 
+        + [{"role": "user", "content" : ("Rewrite the following section of a screenplay: " + chapters[i])}]
         + [{"role": "assistant", "content": "Keep in mind that the previous chapter was this: " + summary[i-1]}]
     )
     remadeStory += "\n\n" + str(completion["choices"][0].message["content"])
@@ -196,8 +196,8 @@ for i in range(0, count-1):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are identifying important characters in a story and identifying aspects that a reader should know."}] 
-        + [{"role": "user", "content" : ("State the important characters of the following chapter and aspects about them that a reader should know: " + chapters[i])}]
+        [{"role": "system", "content": "You are identifying important characters in a screenplay and identifying aspects that a reader should know."}] 
+        + [{"role": "user", "content" : ("State the important characters of the following section and aspects about them that a reader should know: " + chapters[i])}]
         + [{"role": "assistant", "content": "Important characters are individuals with names, not groups of people."}]
     )
     characters_CH.append( str(completion["choices"][0].message["content"]))
@@ -208,8 +208,8 @@ model = "gpt-3.5-turbo",
 temperature = 0.2, #degree of randomness between 0 and 2
 max_tokens = 2500,
 messages = 
-    [{"role": "system", "content": "You are identifying important characters in a story and identifying aspects that a reader should know."}] 
-    + [{"role": "user", "content" : ("State the important characters in this story and aspects about them that a reader should know: " + remadeStory)}]
+    [{"role": "system", "content": "You are identifying important characters in a screenplay and identifying aspects that a reader should know."}] 
+    + [{"role": "user", "content" : ("State the important characters in this screenplay and aspects about them that a reader should know: " + remadeStory)}]
     + [{"role": "assistant", "content": "Important characters are individuals with names, not groups of people."}]
 )
 characters = ( str(completion["choices"][0].message["content"]))
@@ -222,8 +222,8 @@ model = "gpt-3.5-turbo",
 temperature = 0.2, #degree of randomness between 0 and 2
 max_tokens = 2500,
 messages = 
-    [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
-    + [{"role": "user", "content" : ("State the important characters in this story and their relationship to one another: " + remadeStory)}]
+    [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a screenplay."}] 
+    + [{"role": "user", "content" : ("State the important characters in this screenplay and their relationship to one another: " + remadeStory)}]
     + [{"role": "assistant", "content": "Exclude characters that aren't individuals, that is don't include groups of people or unnamed characters. "}]
 )
 characterRelations = ( str(completion["choices"][0].message["content"]))
@@ -238,9 +238,9 @@ for i in range(0, count-1):
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller remaking chapters based on characters and their relationships to each other."}] 
-        + [{"role": "user", "content" : ("Rewrite the following chapter: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i] + "\nProvide only the resulting chapter.")}]
-        + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the story: " + characters}]
+        [{"role": "system", "content": "You are remaking a screenplay based on characters and their relationships to each other."}] 
+        + [{"role": "user", "content" : ("Rewrite the following section: " + chapters[i] + "\nBased on the following characters featured in this chapter: " + characters_CH[i] + "\nProvide only the resulting section of the screenplay.")}]
+        + [{"role": "assistant", "content": "Keep in mind that these are the characters seen throughout the screenplay: " + characters}]
         + [{"role": "assistant", "content": "Keep in mind that these are the relationships between the characters: " + characterRelations}]
     )
     characterStory += "\n\n" + str(completion["choices"][0].message["content"])
@@ -254,8 +254,8 @@ completion = openai.ChatCompletion.create(
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller summarizing a story."}] 
-        + [{"role": "user", "content" : ("Create a detailed summary of the following story: " + remadeStory)}]
+        [{"role": "system", "content": "You are summarizing a screenplay."}] 
+        + [{"role": "user", "content" : ("Create a detailed summary of the following screenplay: " + remadeStory)}]
         + [{"role": "assistant", "content" : "The summary should be long."}]
     )
 summary2 = ( str(completion["choices"][0].message["content"]))
@@ -266,8 +266,8 @@ completion = openai.ChatCompletion.create(
     temperature = 0.2, #degree of randomness between 0 and 2
     max_tokens = 2500,
     messages = 
-        [{"role": "system", "content": "You are a story teller summarizing chapters."}] 
-        + [{"role": "user", "content" : ("Create a detailed summary of the following story: " + characterStory)}]
+        [{"role": "system", "content": "You are summarizing a screenplay."}] 
+        + [{"role": "user", "content" : ("Create a detailed summary of the following screenplay: " + characterStory)}]
         + [{"role": "assistant", "content" : "The summary should be long."}]
 )
 summary3 = ( str(completion["choices"][0].message["content"]))
@@ -280,8 +280,8 @@ model = "gpt-3.5-turbo",
 temperature = 0.2, #degree of randomness between 0 and 2
 max_tokens = 2500,
 messages = 
-    [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a story."}] 
-    + [{"role": "user", "content" : ("State the important characters in this story and their relationship to one another: " + characterStory)}]
+    [{"role": "system", "content": "You are identifying important characters and their relationships to each other in a screenplay."}] 
+    + [{"role": "user", "content" : ("State the important characters in this screenplay and their relationship to one another: " + characterStory)}]
     + [{"role": "assistant", "content": "Important characters are individuals with names, not groups of people."}]
 )
 characterStoryUpdate = ( str(completion["choices"][0].message["content"]))
